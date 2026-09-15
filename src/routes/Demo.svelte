@@ -1,9 +1,11 @@
-<!-- Beispielseite: alle drei Diagramme mit ihren Varianten und einem Neu-Knopf. -->
+<!-- Beispielseite: die drei Diagramme mit ihren Varianten und einem Neu-Knopf.
+     Nur zum Ansehen gedacht — für den Einbau reicht src/lib/rueckblick.
+     „Bewegung reduzieren" folgt der Systemeinstellung und braucht keinen Schalter. -->
 <script>
-  import { Sonnenuhr, Zehntel, Themencluster, TAGESZEITEN, ZEHNTEL, CLUSTER, bewegung } from '$lib/rueckblick';
+  import { Sonnenuhr, Zehntel, Themencluster, TAGESZEITEN, ZEHNTEL, CLUSTER } from '$lib/rueckblick';
 
   let uhr = $state(0), zehntel = $state(0), cluster = $state(0);
-  let uhrRef, zehntelRef, clusterRef;
+  let uhrRef = $state(null), zehntelRef = $state(null), clusterRef = $state(null);
 
   const z = $derived(TAGESZEITEN[uhr]);
 </script>
@@ -47,11 +49,6 @@
   {/key}
 </section>
 
-<label>
-  <input type="checkbox" bind:checked={bewegung.ruhig} />
-  Bewegung reduzieren
-</label>
-
 <style>
   section { display: flex; flex-direction: column; gap: 16px; margin: 0 auto 72px; max-width: 560px; }
   nav { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -62,5 +59,4 @@
   }
   button[aria-pressed='true'] { background: var(--rb-text-100); color: var(--rb-flaeche); border-color: var(--rb-text-100); }
   .neu { margin-left: auto; }
-  label { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--rb-text-70); }
 </style>
