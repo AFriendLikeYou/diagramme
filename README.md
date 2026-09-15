@@ -1,4 +1,4 @@
-# Rückblick-Diagramme · Svelte-Komponenten
+# Rückblick-Diagramme · Svelte-Komponenten Prototyp
 
 Drei Diagramme aus dem Onboarding-Rückblick, als eigenständige Svelte-5-Komponenten:
 
