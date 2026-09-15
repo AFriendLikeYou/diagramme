@@ -1,0 +1,17 @@
+{
+  "name": "@zeit/rueckblick-diagramme",
+  "version": "0.1.0",
+  "description": "Die drei Diagramme des Onboarding-Rückblicks als Svelte-Komponenten",
+  "type": "module",
+  "license": "UNLICENSED",
+  "private": true,
+  "files": ["src/lib/rueckblick"],
+  "exports": {
+    ".": { "svelte": "./src/lib/rueckblick/index.js", "default": "./src/lib/rueckblick/index.js" },
+    "./rueckblick.css": "./src/lib/rueckblick/rueckblick.css"
+  },
+  "peerDependencies": {
+    "svelte": "^5.20.0"
+  },
+  "keywords": ["svelte", "zeit", "rueckblick", "diagramm"]
+}

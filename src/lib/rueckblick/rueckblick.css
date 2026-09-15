@@ -1,0 +1,133 @@
+/* =====================================================================
+   Rückblick-Diagramme · Tokenbrücke
+   Einmal global einbinden:  import '$lib/rueckblick/rueckblick.css'
+
+   Das ist die EINZIGE Stelle, an der die Komponenten am Farbsystem hängen.
+   Alles Systemseitige kommt aus den ZDS-Custom-Properties
+   (`--z-ds-color-*`); die Rückfallwerte in den var()-Ausdrücken sind nur
+   für Umgebungen ohne das ZDS-Stylesheet gedacht (Storybook, Tests).
+
+   Hell/Dunkel: Die ZDS-Tokens schalten selbst um — über
+   `@media (prefers-color-scheme:dark) html:not(.color-scheme-light)` und
+   `html.color-scheme-dark`. Die Blöcke unten benutzen dieselben Schalter
+   und setzen nur das, was es im ZDS nicht gibt (Himmelsfarben, Stern,
+   Balkengrau, Blasenschatten) — plus die zwei Rollen, die im Dunkeln auf
+   eine ANDERE ZDS-Stufe zeigen:
+
+     --rb-flaeche     Kartengrund. Hell background-0 (#ffffff),
+                      dunkel background-10 (#232323) — background-0 ist im
+                      Dunkelmodus der Seitengrund (#121212), nicht die Karte.
+     --rb-flaeche-10  Fläche IN der Karte. Hell background-10,
+                      dunkel background-20.
+   ===================================================================== */
+:root{
+  /* --- aus dem ZDS ------------------------------------------------- */
+  --rb-flaeche:    var(--z-ds-color-background-0,  #ffffff);
+  --rb-flaeche-10: var(--z-ds-color-background-10, #eeeeee);
+  --rb-text-100:   var(--z-ds-color-text-100,      #252525);
+  --rb-text-70:    var(--z-ds-color-text-70,       #444444);
+  --rb-text-55:    var(--z-ds-color-text-55,       #69696c);
+  --rb-text-40:    var(--z-ds-color-text-40,       #999999);
+  --rb-border-70:  var(--z-ds-color-border-70,     #e4e4e4);
+  --rb-border-100: var(--z-ds-color-border-100,    #cccccf);
+  --rb-accent:     var(--z-ds-color-accent-100,    #b91109);
+  --rb-weiss:      var(--z-ds-color-general-white-100, #ffffff);
+  --rb-radius:     var(--z-ds-border-radius-8,     .5rem);
+  --rb-schatten:   var(--z-ds-boxshadow-base,      0 .25rem .625rem rgba(0,0,0,.05));
+
+  /* --- eigene Werte des Rückblicks (kein ZDS-Token vorhanden) ------- */
+  --rb-balken-grau:#e2e2e4;
+  --rb-stern:#8494b5; --rb-stern-op:.45;
+  --rb-blase-schatten:0 14px 36px -15px rgba(0,0,0,.35);
+
+  /* Himmel je Tageszeit — aus der Figma-Kollektion „Rückblick / Farben" */
+  --rb-k-morgens:#FFE4C8;     --rb-d-morgens:#FFE4C8;
+  --rb-k-mittags:#D9F0FD;     --rb-d-mittags:#D9F0FD;
+  --rb-k-nachmittags:#FFEDD2; --rb-d-nachmittags:#FFEDD2;
+  --rb-k-abends:#D7DBEE;      --rb-d-abends:#FFD9B8;
+  --rb-k-nachts:#DDE3EC;      --rb-d-nachts:#DDE3EC;
+  /* Deckung der Verlaufsstufen; „abends" trägt in Kuppel und Dunst
+     verschiedene Farben und deshalb eigene Werte */
+  --rb-ka0:.88; --rb-ka1:.46; --rb-ka2:.14;
+  --rb-ka0-abends:.72; --rb-ka1-abends:.40; --rb-ka2-abends:.12;
+  --rb-da0:.52; --rb-da1:.17;
+  --rb-da0-abends:.52; --rb-da1-abends:.17;
+  /* Bogen · Rest des Tages: Verlauf vom Scheitel zum Horizont */
+  --rb-bogen-rest-0:.20; --rb-bogen-rest-1:.09;
+
+  /* --- Choreografie ------------------------------------------------ */
+  --rb-tempo:.55;                              /* < 1 = langsamer */
+  --rb-e:cubic-bezier(.5,.05,.2,1);            /* Aufbau: an- und auslaufend */
+  --rb-e-bogen:cubic-bezier(.22,1,.36,1);      /* Bogen und Gestirn */
+  --rb-e-pop:cubic-bezier(0,0,.2,1);           /* Marke, Schrift */
+  --rb-e-blase:cubic-bezier(.2,1.24,.38,1);    /* Hauptblase */
+  --rb-e-blase-neben:cubic-bezier(.2,.86,.28,1);
+
+  --rb-d-horizont:480ms; --rb-v-horizont:0ms;
+  --rb-d-himmel:950ms;   --rb-v-himmel:120ms;
+  --rb-d-bogen:2000ms;   --rb-v-bogen:140ms;
+  --rb-d-label:400ms;    --rb-v-label:0ms;
+
+  --rb-d-balken:140ms;   --rb-v-balken:300ms;  --rb-s-balken:55ms;
+  --rb-d-marke:360ms;    --rb-v-marke:1000ms;
+
+  --rb-d-haupt:340ms;    --rb-v-haupt:60ms;
+  --rb-d-blase:560ms;    --rb-v-blase:360ms;   --rb-s-blase:55ms;
+
+  /* --rb-T wird von den Komponenten aus der tempo-Eigenschaft gesetzt;
+     dieser Wert gilt, wenn eine Komponente außerhalb steht. */
+  --rb-T:calc(1 / var(--rb-tempo));
+}
+
+/* Dunkel — dieselben Schalter wie im ZDS */
+@media (prefers-color-scheme:dark){
+  html:not(.color-scheme-light):not([data-theme="light"]){
+    --rb-flaeche:    var(--z-ds-color-background-10, #232323);
+    --rb-flaeche-10: var(--z-ds-color-background-20, #2e2e2e);
+    --rb-text-100:   var(--z-ds-color-text-100,   #ffffff);
+    --rb-text-70:    var(--z-ds-color-text-70,    #bababa);
+    --rb-text-55:    var(--z-ds-color-text-55,    #999999);
+    --rb-text-40:    var(--z-ds-color-text-40,    #8b8b8b);
+    --rb-border-70:  var(--z-ds-color-border-70,  #2e2e2e);
+    --rb-border-100: var(--z-ds-color-border-100, #363636);
+    --rb-accent:     var(--z-ds-color-accent-100, #eb362e);
+    --rb-balken-grau:#414143;
+    --rb-stern:#ffffff; --rb-stern-op:.75;
+    --rb-blase-schatten:0 14px 36px -15px rgba(0,0,0,.7);
+    --rb-k-morgens:#E08A3C;     --rb-d-morgens:#F0A254;
+    --rb-k-mittags:#4A9FD8;     --rb-d-mittags:#63B4E8;
+    --rb-k-nachmittags:#E0A63C; --rb-d-nachmittags:#F0A03C;
+    --rb-k-abends:#4E5C8F;      --rb-d-abends:#E08A4A;
+    --rb-k-nachts:#6E86B8;      --rb-d-nachts:#8AA0CC;
+    --rb-ka0:.34; --rb-ka1:.18; --rb-ka2:.06;
+    --rb-ka0-abends:.40; --rb-ka1-abends:.22; --rb-ka2-abends:.07;
+    --rb-da0:.40; --rb-da1:.14;
+    --rb-da0-abends:.42; --rb-da1-abends:.14;
+    --rb-bogen-rest-0:.26; --rb-bogen-rest-1:.13;
+  }
+}
+
+html.color-scheme-dark, html[data-theme="dark"]{
+  --rb-flaeche:    var(--z-ds-color-background-10, #232323);
+  --rb-flaeche-10: var(--z-ds-color-background-20, #2e2e2e);
+  --rb-text-100:   var(--z-ds-color-text-100,   #ffffff);
+  --rb-text-70:    var(--z-ds-color-text-70,    #bababa);
+  --rb-text-55:    var(--z-ds-color-text-55,    #999999);
+  --rb-text-40:    var(--z-ds-color-text-40,    #8b8b8b);
+  --rb-border-70:  var(--z-ds-color-border-70,  #2e2e2e);
+  --rb-border-100: var(--z-ds-color-border-100, #363636);
+  --rb-accent:     var(--z-ds-color-accent-100, #eb362e);
+  --rb-balken-grau:#414143;
+  --rb-stern:#ffffff; --rb-stern-op:.75;
+  --rb-blase-schatten:0 14px 36px -15px rgba(0,0,0,.7);
+  --rb-k-morgens:#E08A3C;     --rb-d-morgens:#F0A254;
+  --rb-k-mittags:#4A9FD8;     --rb-d-mittags:#63B4E8;
+  --rb-k-nachmittags:#E0A63C; --rb-d-nachmittags:#F0A03C;
+  --rb-k-abends:#4E5C8F;      --rb-d-abends:#E08A4A;
+  --rb-k-nachts:#6E86B8;      --rb-d-nachts:#8AA0CC;
+  --rb-ka0:.34; --rb-ka1:.18; --rb-ka2:.06;
+  --rb-ka0-abends:.40; --rb-ka1-abends:.22; --rb-ka2-abends:.07;
+  --rb-da0:.40; --rb-da1:.14;
+  --rb-da0-abends:.42; --rb-da1-abends:.14;
+  --rb-bogen-rest-0:.26; --rb-bogen-rest-1:.13;
+}
