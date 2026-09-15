@@ -149,18 +149,3 @@ wird zu einem `writable`-Store.
 
 Die Komponenten erben die Schrift ihres Elternelements (`font-family: inherit`).
 Im Rückblick ist das Tablet Gothic; die Diagramme setzen selbst keine Familie.
-
-## Herkunft
-
-Die Diagramme stammen aus dem Animations-Prototyp des Onboarding-Rückblicks.
-Maße und Farben sind gegen die Figma-Vorlagen vermessen:
-
-* `Rückblick / Grafik Sonnenuhr` — `294:30264`
-* `Rückblick / Platz im Vergleich` — `262:29914`
-
-beide im File `qXVl1snFCVHRxboNKQ5FLp`.
-
-## Offen
-
-* Das Band im `Zehntel`-Diagramm hat in Figma drei waagerechte Rasterlinien
-  (1,5 stark, 130,8 / 86,9 / 42,9 über der Grundlinie). Sie fehlen hier noch.
